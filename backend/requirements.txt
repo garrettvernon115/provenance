@@ -1,0 +1,9 @@
+# Phase 2 baseline retrieval. torch arrives transitively via sentence-transformers
+# (~2 GB); the bge-small model (~130 MB) downloads on first use. CPU is fine for
+# the current corpus size.
+sentence-transformers>=3.0
+pgvector>=0.3
+numpy>=1.26
+psycopg[binary]>=3.2
+python-dotenv>=1.0
+pytest>=8.0
