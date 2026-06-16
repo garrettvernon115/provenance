@@ -84,12 +84,21 @@ def semantic_search(
 def lexical_search(
     conn: psycopg.Connection, query: str, limit: int = DEFAULT_LIMIT
 ) -> list[Result]:
-    """Full-text search over the chunks.ts tsvector, ranked by ts_rank_cd."""
+    """BM25-style full-text search over chunks.ts, ranked by ts_rank_cd.
+
+    Terms are OR-combined (term overlap, BM25-like), not AND-combined: a
+    natural-language question rarely has *every* term present in a relevant
+    passage, so AND semantics (e.g. websearch_to_tsquery) would match almost
+    nothing. We let ``plainto_tsquery`` do normalization/stemming/stopword
+    removal, then flip its ``&`` operators to ``|`` so ranking — not a hard
+    conjunction — decides relevance.
+    """
     sql = _SELECT + """
-        , ts_rank_cd(c.ts, q) AS rank
+        , ts_rank_cd(c.ts, q.query) AS rank
         FROM chunks c JOIN documents d ON d.id = c.document_id,
-             websearch_to_tsquery('english', %(query)s) AS q
-        WHERE c.ts @@ q
+             (SELECT replace(plainto_tsquery('english', %(query)s)::text,
+                             '&', '|')::tsquery AS query) AS q
+        WHERE q.query <> '' AND c.ts @@ q.query
         ORDER BY rank DESC
         LIMIT %(limit)s
     """

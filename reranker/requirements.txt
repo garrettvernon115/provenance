@@ -1,0 +1,9 @@
+# Phase 3: training-data generation (LLM positives + BM25 hard negatives).
+# Cross-encoder training + ONNX export deps arrive in Phase 4.
+anthropic>=0.40
+psycopg[binary]>=3.2
+python-dotenv>=1.0
+pytest>=8.0
+# transitively needed: build_training_data reuses backend/retrieval.py, whose
+# embedding module imports numpy (no torch is loaded for lexical mining)
+numpy>=1.26
