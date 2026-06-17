@@ -15,8 +15,9 @@ venv/
 .pytest_cache/
 *.egg-info/
 
-# ML artifacts (large; revisit LFS in Phase 4)
+# ML artifacts (large; regenerable via reranker/train_reranker.py + export_onnx.py)
 *.onnx
+models/
 
 # Node / Angular
 node_modules/

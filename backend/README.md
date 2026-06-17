@@ -43,6 +43,19 @@ run a single retriever. Each result shows company · form · section · fused sc
 contributing retriever ranks, a snippet, and `accession[char_start:char_end]` citation
 coordinates.
 
+## Re-ranking (Phase 4)
+
+```bash
+python search.py "what are the company's supply chain risks?" --rerank
+```
+
+`--rerank` pulls a deeper first-stage pool (`--candidates`, default 50) from hybrid
+retrieval, then reorders it with the trained cross-encoder, returning the top `--k`.
+Results show the re-ranker score `ce=…` alongside the original `rrf=…`. Requires the
+ONNX model — train and export it first (`reranker/train_reranker.py`,
+`reranker/export_onnx.py` → `models/reranker.onnx`). Serving is a pure ONNX Runtime
+call; no torch is needed at serving time.
+
 ## Layout
 
 - `embedding.py` — model wrapper (the only file that knows the model name, the 384-dim
@@ -50,6 +63,8 @@ coordinates.
   matching migration).
 - `retrieval.py` — `semantic_search`, `lexical_search`, `reciprocal_rank_fusion` (pure),
   `hybrid_search`. Import these from the eval harness and API — same code path everywhere.
+- `reranker.py` — loads `models/reranker.onnx` + tokenizer (ONNX Runtime); `rerank(query,
+  results)` reorders candidates and sets each result's `rerank_score`.
 - `db.py` — env-based connection with the pgvector adapter registered.
 - `embed_chunks.py`, `search.py` — the two CLIs above.
 
@@ -62,3 +77,4 @@ coordinates.
 `test_rrf.py` is pure (always runs). `test_embedding.py` loads the model (skips if it
 can't be downloaded). `test_retrieval_integration.py` runs against the live Postgres and
 rolls back everything it writes (skips if the DB or model is unavailable).
+`test_reranker.py` exercises the serving re-ranker (skips until the ONNX model exists).

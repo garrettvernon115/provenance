@@ -47,6 +47,7 @@ class Result:
     lexical_score: Optional[float] = None
     score: float = 0.0
     retrievers: list[str] = field(default_factory=list)
+    rerank_score: Optional[float] = None  # set by the trained re-ranker (Phase 4)
 
 
 def _row_to_result(row) -> Result:

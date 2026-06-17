@@ -18,6 +18,9 @@ import retrieval
 
 def _score_label(result: retrieval.Result, mode: str) -> str:
     """Show the score that's meaningful for the chosen retriever."""
+    if "rerank" in mode:
+        ce = f"ce={result.rerank_score:.3f}" if result.rerank_score is not None else "ce=—"
+        return f"{ce} (rrf={result.score:.4f})"
     if mode == "semantic":
         return f"cos={result.semantic_score:.4f}" if result.semantic_score is not None else "cos=—"
     if mode == "lexical":
@@ -50,6 +53,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--mode", choices=["hybrid", "semantic", "lexical"],
                         default="hybrid", help="retriever to use (default hybrid)")
     parser.add_argument("--k", type=int, default=10, help="results to show (default 10)")
+    parser.add_argument("--rerank", action="store_true",
+                        help="reorder candidates with the trained cross-encoder re-ranker")
+    parser.add_argument("--candidates", type=int, default=50,
+                        help="first-stage pool size to re-rank (default 50)")
     parser.add_argument("--snippet-chars", type=int, default=280,
                         help="max snippet length per result (default 280)")
     parser.add_argument("--db-url", default=None,
@@ -64,13 +71,26 @@ def main(argv: list[str] | None = None) -> int:
     db.load_env()
     conn = db.connect(args.db_url)
     try:
-        results = retrieval.search(conn, args.query, mode=args.mode, limit=args.k)
+        # When re-ranking, pull a deeper first-stage pool and let the cross-encoder
+        # pick the final top-k from it.
+        limit = args.candidates if args.rerank else args.k
+        results = retrieval.search(conn, args.query, mode=args.mode, limit=limit)
     finally:
         conn.close()
 
-    print(f"\n{args.mode} search · \"{args.query}\" · {len(results)} results\n")
+    label = args.mode
+    if args.rerank:
+        import reranker
+        if not reranker.model_available():
+            print("re-ranker model not found — train + export it first "
+                  "(reranker/train_reranker.py, reranker/export_onnx.py)", file=sys.stderr)
+            return 2
+        results = reranker.rerank(args.query, results, top_k=args.k)
+        label = f"{args.mode}+rerank"
+
+    print(f"\n{label} search · \"{args.query}\" · {len(results)} results\n")
     for i, result in enumerate(results, start=1):
-        print(f"{i:>2}. {_format(result, args.mode, args.snippet_chars)}\n")
+        print(f"{i:>2}. {_format(result, label, args.snippet_chars)}\n")
     if not results:
         print("(no matches)")
     return 0

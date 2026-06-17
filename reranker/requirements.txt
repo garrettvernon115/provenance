@@ -7,3 +7,13 @@ pytest>=8.0
 # transitively needed: build_training_data reuses backend/retrieval.py, whose
 # embedding module imports numpy (no torch is loaded for lexical mining)
 numpy>=1.26
+
+# --- Phase 4: cross-encoder training + ONNX export -------------------------
+# torch (CPU) arrives transitively via sentence-transformers. Training runs on
+# CPU here; the same requirements reproduce on a free Colab/Kaggle GPU at scale.
+sentence-transformers>=5.0
+datasets>=2.19
+accelerate>=0.30
+onnx>=1.16
+onnxruntime>=1.18
+onnxscript>=0.5  # required by torch>=2.x torch.onnx.export
