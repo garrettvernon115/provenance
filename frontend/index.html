@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Provenance — cited answers over SEC filings</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Provenance</h1>
+      <p class="tag">Natural-language answers over SEC EDGAR filings, with citations to the
+        exact source passage — retrieval driven by a <strong>cross-encoder re-ranker trained
+        in-house</strong>.</p>
+      <nav class="tabs">
+        <button class="tab active" data-view="ask">Ask</button>
+        <button class="tab" data-view="eval">Evaluation</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ASK -->
+    <section id="ask" class="view active">
+      <form id="ask-form" autocomplete="off">
+        <input id="q" type="text" placeholder="e.g. What are the company's risks from rising interest rates?" />
+        <button id="ask-btn" type="submit">Ask</button>
+      </form>
+      <div class="controls">
+        <label><input type="checkbox" id="rerank" checked /> Use trained re-ranker</label>
+        <span id="status" class="status"></span>
+      </div>
+
+      <div id="answer" class="answer hidden"></div>
+      <div id="sources" class="sources"></div>
+    </section>
+
+    <!-- EVAL -->
+    <section id="eval" class="view">
+      <h2>Does the trained re-ranker actually help?</h2>
+      <p class="muted">Three-way comparison on a held-out gold set — first-stage hybrid
+        retrieval (no re-rank) vs. an off-the-shelf MS MARCO cross-encoder vs. the
+        fine-tuned re-ranker. Same candidate pool; only the ordering differs.</p>
+      <div id="eval-content">Loading…</div>
+    </section>
+  </main>
+
+  <!-- source viewer -->
+  <div id="viewer" class="viewer hidden">
+    <div class="viewer-box">
+      <div class="viewer-head">
+        <span id="viewer-title"></span>
+        <button id="viewer-close" aria-label="close">×</button>
+      </div>
+      <div id="viewer-body" class="viewer-body"></div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

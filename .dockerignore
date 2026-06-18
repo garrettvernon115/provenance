@@ -1,0 +1,28 @@
+# Keep the build context (and image) lean. The API imports only backend/, and
+# serves frontend/ + models/reranker.onnx; everything else is build/training-time.
+**/.venv
+**/__pycache__
+**/*.py[cod]
+.git
+.github
+.pytest_cache
+
+# corpus + training data (not needed to serve; DB holds the ingested corpus)
+data/raw
+data/training
+data/eval/gold.jsonl
+
+# build/training-time code not used by the API
+ingestion
+reranker
+eval
+
+# model artifacts the API does NOT need (serving uses only the ONNX + tokenizer)
+models/reranker-trained
+models/_train_ckpt
+
+# misc
+*.md
+.env
+.env.*
+!.env.example

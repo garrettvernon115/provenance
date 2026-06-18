@@ -79,7 +79,24 @@ backend/.venv/Scripts/python -m pytest eval/tests
 
 `test_metrics.py` is pure (no DB, model, or network).
 
-## Not yet (Phase 6)
+## Answer-layer eval (Phase 6)
 
-End-to-end answer faithfulness + citation accuracy need the answer layer, which
-arrives in Phase 6; they'll be added here then. Phase 5 is the retrieval comparison.
+Once the answer layer exists, `eval_answers.py` runs the full pipeline (hybrid →
+trained re-ranker → grounded answer) on a sample of gold questions and reports
+end-to-end quality:
+
+```bash
+backend/.venv/Scripts/python eval/eval_answers.py --sample 20
+```
+
+- **faithfulness** — an LLM-judge verdict on whether every claim in the answer is
+  supported by the passages it cited (no hallucination).
+- **citation accuracy** — how often the answer cites the gold passage.
+- **gold in top-k** — how often the gold passage reached the answer prompt (the
+  retrieval ceiling that bounds citation accuracy).
+
+**Result (20-question sample, k=6, 2026-06-17):** faithfulness **90%**, citation
+accuracy **75%**, gold-in-top-6 **75%** — i.e. whenever the gold passage was
+retrieved into the prompt, the answer cited it; the limiter is first-stage recall at
+k=6, not the answer layer. Needs `ANTHROPIC_API_KEY` and the DB; writes
+`data/eval/answer_eval.json`.

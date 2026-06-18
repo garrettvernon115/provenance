@@ -22,5 +22,30 @@ services:
       retries: 10
     restart: unless-stopped
 
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: provenance-api
+    # Load the repo-root .env (for ANTHROPIC_API_KEY) when present. Optional, so
+    # on a host that injects secrets as env vars this is simply skipped. The
+    # environment block below overrides the DB host/port for the compose network.
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      # inside the compose network the API reaches Postgres at db:5432
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-provenance}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-provenance}
+      POSTGRES_DB: ${POSTGRES_DB:-provenance}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   pgdata:

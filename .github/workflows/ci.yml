@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unit:
+    name: Unit tests (no DB / model / network)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # One lightweight dependency set (no torch / fastapi / onnxruntime). The
+      # DB-, model-, and network-dependent tests skip themselves when their
+      # service isn't present, so CI stays fast and hermetic.
+      - name: install test deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pydantic numpy "psycopg[binary]" requests python-dotenv beautifulsoup4 pypdf
+
+      - name: ingestion — parsers, chunker, fetcher (DB test self-skips)
+        run: python -m pytest ingestion/tests -q
+
+      - name: reranker — data-prep, hard negatives, LLM interface
+        run: python -m pytest reranker/tests/test_pairs.py reranker/tests/test_llm.py reranker/tests/test_negatives.py -q
+
+      - name: backend — RRF fusion
+        run: python -m pytest backend/tests/test_rrf.py -q
+
+      - name: eval — retrieval metrics
+        run: python -m pytest eval/tests -q
+
+  docker-build:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The serving image must build (deps resolve, COPYs valid). The model is
+      # gitignored, so stub the artifacts the Dockerfile copies.
+      - name: stub model artifacts (real ones are gitignored)
+        run: |
+          mkdir -p models/reranker-tokenizer
+          touch models/reranker.onnx models/reranker-tokenizer/tokenizer.json
+      - name: build image
+        run: docker build -f infra/Dockerfile -t provenance:ci .

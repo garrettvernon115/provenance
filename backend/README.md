@@ -1,9 +1,10 @@
 # backend
 
-Phase 2: baseline hybrid retrieval — pgvector semantic search + Postgres full-text
-search, fused via Reciprocal Rank Fusion. This is the candidate generator the trained
-re-ranker (Phase 4) reorders and the eval harness (Phase 5) measures. The FastAPI answer
-API comes in Phase 6; for now the entry point is a CLI.
+Hybrid retrieval (Phase 2) + the trained ONNX re-ranker (Phase 4) + the grounded
+answer layer and FastAPI service (Phase 6). pgvector semantic search and Postgres
+full-text search are fused via Reciprocal Rank Fusion, the trained cross-encoder
+reorders the pool, and an LLM writes a cited answer over the top passages — all
+behind one FastAPI app that also serves the UI.
 
 ## Setup
 
@@ -56,6 +57,31 @@ ONNX model — train and export it first (`reranker/train_reranker.py`,
 `reranker/export_onnx.py` → `models/reranker.onnx`). Serving is a pure ONNX Runtime
 call; no torch is needed at serving time.
 
+## API + UI (Phase 6)
+
+```bash
+# from backend/ (DB up, ANTHROPIC_API_KEY in .env for written answers)
+.venv/Scripts/python -m uvicorn app:app --port 8000
+# open http://localhost:8000
+```
+
+`app.py` is one FastAPI service tying the system together — it imports the same
+`retrieval` / `reranker` / `answer` modules the CLIs and eval use:
+
+- `POST /api/query {query, k, rerank}` → hybrid retrieve → trained re-ranker →
+  `answer.py` writes a grounded answer citing passages by number. Returns the answer,
+  which passages it cited, and the ranked sources (with `rerank_score` + exact
+  `char_start:char_end` citation offsets).
+- `GET /api/documents/{accession}` → full document text, so the UI highlights a
+  citation in its exact source context (the citation invariant, surfaced).
+- `GET /api/eval` → the Phase 5 comparison JSON for the dashboard.
+- `GET /healthz`, `GET /` (served UI from `frontend/`).
+
+`answer.py` keeps the answer LLM behind an `AnswerGenerator` protocol (Claude Haiku
+4.5 default, swappable). Retrieval + re-ranking still work with no API key — the UI
+then shows cited passages without a written answer. Containerized in `infra/Dockerfile`;
+see `infra/DEPLOY.md`.
+
 ## Layout
 
 - `embedding.py` — model wrapper (the only file that knows the model name, the 384-dim
@@ -65,6 +91,8 @@ call; no torch is needed at serving time.
   `hybrid_search`. Import these from the eval harness and API — same code path everywhere.
 - `reranker.py` — loads `models/reranker.onnx` + tokenizer (ONNX Runtime); `rerank(query,
   results)` reorders candidates and sets each result's `rerank_score`.
+- `answer.py` — grounded cited-answer layer behind a swappable `AnswerGenerator`.
+- `app.py` — the FastAPI service + UI host.
 - `db.py` — env-based connection with the pgvector adapter registered.
 - `embed_chunks.py`, `search.py` — the two CLIs above.
 
