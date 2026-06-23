@@ -23,8 +23,9 @@ RUN pip install --index-url https://download.pytorch.org/whl/cpu torch \
 COPY backend/ backend/
 COPY frontend/ frontend/
 COPY models/ models/
-# Eval results power the dashboard; optional (the endpoint 404s gracefully if absent).
-COPY data/eval/results.jso[n] data/eval/results.json
+# Note: the eval dashboard reads data/eval/results.json at runtime. It's gitignored
+# (regenerable), so it isn't baked in — mount it (see docker-compose.yml) or provide
+# it on the host; /api/eval 404s gracefully when it's absent.
 
 # The embedding model (bge-small) is fetched on first query and cached here.
 ENV HF_HOME=/app/.hf_cache
