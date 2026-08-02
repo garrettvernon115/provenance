@@ -117,12 +117,24 @@ def main(argv: list[str] | None = None) -> int:
     log.info("trained vs no-rerank: %+.4f   trained vs off-the-shelf: %+.4f",
              trained - base, trained - off)
 
+    # Per-question gold ranks, so the dashboard can show where each gold passage
+    # landed under each system rather than only the aggregates. null = not in pool.
+    per_question = [
+        {
+            "question": item["question"],
+            "gold_chunk_id": item["gold_chunk_id"],
+            "ranks": {name: ranks[name][i] for name in ranks},
+        }
+        for i, item in enumerate(gold)
+    ]
+
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps({
         "gold_size": len(gold),
         "candidate_pool": args.candidates,
         "off_the_shelf_model": OFF_THE_SHELF,
         "results": results,
+        "per_question": per_question,
     }, indent=2), encoding="utf-8")
     log.info("wrote %s", args.out.resolve())
     return 0

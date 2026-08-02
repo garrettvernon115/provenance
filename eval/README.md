@@ -43,6 +43,12 @@ Prints a table and writes `data/eval/results.json`. `found` = fraction of questi
 whose gold chunk was in the candidate pool at all (the first-stage ceiling the
 re-ranker works within).
 
+`results.json` carries both the aggregates (`results`) and a `per_question` array —
+each gold question's text plus the rank its gold chunk landed at under each system
+(`null` = never retrieved into the pool). The aggregates are derivable from it, so
+it doubles as an audit trail; the Phase 6 dashboard draws its rank-movement chart
+straight from it.
+
 ## Result (50-question held-out set, 2026-06-17)
 
 Candidate pool = top-50 hybrid; `found` = 0.96 (gold chunk in the pool for 48/50,
