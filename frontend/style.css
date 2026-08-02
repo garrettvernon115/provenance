@@ -15,7 +15,7 @@ body { background: var(--color-bg); }
 .prov-kicker { font-family: var(--font-body); font-size: 10.5px; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--color-neutral-600); }
 .prov-tabs { margin-left: auto; display: flex; gap: 22px; align-self: flex-end; }
-.prov-lead { font-family: var(--font-body); font-size: 13px; line-height: 1.6;
+.prov-lead { font-family: var(--font-body); font-size: 14px; line-height: 1.6;
   color: var(--color-neutral-700); max-width: 720px; margin: 12px 0 18px; }
 .prov-lead b { font-family: var(--font-heading); color: var(--color-text); }
 
@@ -55,12 +55,12 @@ main { padding: 26px 0 80px; }
   text-transform: uppercase; color: var(--color-neutral-600); margin-bottom: 16px; }
 .prov-eyebrow.accent { color: var(--color-accent); }
 
-.prov-answer { font-family: var(--font-body); font-size: 16px; line-height: 1.74;
+.prov-answer { font-family: var(--font-body); font-size: 17.5px; line-height: 1.74;
   text-align: justify; hyphens: auto; margin: 0; }
 .prov-note-box { border: 1px solid var(--color-divider); border-left: 2px solid var(--color-accent);
   border-radius: var(--radius-md); padding: 16px 18px; }
 .prov-note-box h4 { font-size: 16px; margin: 0 0 7px; }
-.prov-note-box p { font-family: var(--font-body); font-size: 13px; line-height: 1.62;
+.prov-note-box p { font-family: var(--font-body); font-size: 14px; line-height: 1.62;
   color: var(--color-neutral-700); margin: 0; }
 .mono { font-family: ui-monospace, Menlo, monospace; font-size: 0.86em; }
 
@@ -76,7 +76,7 @@ main { padding: 26px 0 80px; }
 .prov-fsrc:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
 .prov-fsrc.on { box-shadow: inset 3px 0 0 var(--color-accent);
   background: color-mix(in srgb, var(--color-accent) 7%, transparent); }
-.prov-fsrc-row { display: flex; align-items: baseline; gap: 8px; font-family: var(--font-body); font-size: 12.5px; }
+.prov-fsrc-row { display: flex; align-items: baseline; gap: 8px; font-family: var(--font-body); font-size: 13.5px; }
 .prov-fnum { color: var(--color-accent); font-family: var(--font-heading); font-weight: 600; }
 .prov-fco { font-family: var(--font-heading); font-weight: 600; font-size: 14px; }
 .prov-fmeta { color: var(--color-neutral-600); }
@@ -87,9 +87,9 @@ main { padding: 26px 0 80px; }
 
 /* ── the source plate (recto) ────────────────────────────────────────── */
 .prov-plate-co { font-family: var(--font-heading); font-weight: 600; font-size: 19px; }
-.prov-plate-meta { font-family: var(--font-body); font-size: 11.5px; color: var(--color-neutral-600);
+.prov-plate-meta { font-family: var(--font-body); font-size: 12.5px; color: var(--color-neutral-600);
   margin: 2px 0 16px; font-variant-numeric: tabular-nums; }
-.prov-plate-text { font-family: var(--font-body); font-size: 13.5px; line-height: 1.7;
+.prov-plate-text { font-family: var(--font-body); font-size: 15px; line-height: 1.72;
   color: var(--color-neutral-700); margin: 0; }
 .prov-mark { background: var(--color-accent-100); box-shadow: inset 2px 0 0 var(--color-accent); padding: 1px 2px; }
 .prov-recto-open { position: absolute; top: 14px; right: 16px; display: flex; align-items: center;
@@ -134,10 +134,10 @@ main { padding: 26px 0 80px; }
 .prov-overlay-crumbs { display: flex; align-items: center; gap: 14px; padding: 9px 28px;
   border-bottom: 1px solid var(--color-divider); font-family: var(--font-body); font-size: 11px; color: var(--color-neutral-600); }
 .prov-overlay-scroll { overflow: auto; padding: 30px 40px; font-family: var(--font-body);
-  font-size: 13.5px; line-height: 1.78; color: var(--color-neutral-700); text-align: justify; hyphens: auto; white-space: pre-wrap; }
+  font-size: 15px; line-height: 1.8; color: var(--color-neutral-700); text-align: justify; hyphens: auto; white-space: pre-wrap; }
 
 /* ── Evaluation spread ───────────────────────────────────────────────── */
-.prov-arg { font-family: var(--font-body); font-size: 15.5px; line-height: 1.74;
+.prov-arg { font-family: var(--font-body); font-size: 16.5px; line-height: 1.74;
   text-align: justify; hyphens: auto; margin: 0 0 22px; }
 .prov-toggle-row { display: flex; align-items: center; gap: 12px; padding: 14px 0;
   border-top: 1px solid var(--color-divider); border-bottom: 1px solid var(--color-divider);
@@ -161,7 +161,7 @@ main { padding: 26px 0 80px; }
   font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: 4px; }
 .prov-metric-d { font-family: var(--font-body); font-size: 11.5px; font-variant-numeric: tabular-nums; color: var(--color-accent-700); }
 .prov-metric-d.base { color: var(--color-neutral-500); }
-.prov-fignote { font-family: var(--font-body); font-size: 12px; line-height: 1.6;
+.prov-fignote { font-family: var(--font-body); font-size: 13px; line-height: 1.6;
   color: var(--color-neutral-600); margin: 0; font-style: italic; }
 
 .prov-ledger-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
