@@ -23,9 +23,11 @@ RUN pip install --index-url https://download.pytorch.org/whl/cpu torch \
 COPY backend/ backend/
 COPY frontend/ frontend/
 COPY models/ models/
-# Note: the eval dashboard reads data/eval/results.json at runtime. It's gitignored
-# (regenerable), so it isn't baked in — mount it (see docker-compose.yml) or provide
-# it on the host; /api/eval 404s gracefully when it's absent.
+# The eval dashboard reads data/eval/results.json at runtime. Bake it in so the
+# Evaluation tab works on hosts without a file mount (e.g. Railway/Render). It's
+# gitignored + regenerable; CI stubs it so this COPY stays valid. /api/eval still
+# 404s gracefully if it's somehow absent.
+COPY data/eval/results.json data/eval/results.json
 
 # The embedding model (bge-small) is fetched on first query and cached here.
 ENV HF_HOME=/app/.hf_cache
@@ -33,4 +35,6 @@ ENV HF_HOME=/app/.hf_cache
 EXPOSE 8000
 WORKDIR /app/backend
 # Single worker: the ONNX session and embedding model load once per process.
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Shell form so managed hosts that inject $PORT (Railway, Render) are honoured;
+# defaults to 8000 for local/compose where PORT is unset.
+CMD uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}

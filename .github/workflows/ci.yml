@@ -46,5 +46,7 @@ jobs:
         run: |
           mkdir -p models/reranker-tokenizer
           touch models/reranker.onnx models/reranker-tokenizer/tokenizer.json
+          mkdir -p data/eval
+          echo '{}' > data/eval/results.json   # Dockerfile COPYs it; real one is gitignored
       - name: build image
         run: docker build -f infra/Dockerfile -t provenance:ci .

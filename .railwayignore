@@ -1,0 +1,27 @@
+# What `railway up` uploads. Railway uses this file in place of .gitignore, so the
+# gitignored-but-needed serving artifacts (models/reranker.onnx, the tokenizer, and
+# data/eval/results.json) DO get uploaded. The Dockerfile's .dockerignore then trims
+# the build context to exactly what the image needs.
+
+# virtualenvs, caches, VCS
+**/.venv
+**/__pycache__
+**/*.py[cod]
+.git
+.pytest_cache
+**/.hf_cache
+
+# heavy corpus + training data not needed to serve (the DB holds the ingested corpus)
+data/raw
+data/training
+data/eval/gold.jsonl
+data/provenance_db.sql
+
+# training-time model artifacts the API doesn't load (serving uses the ONNX + tokenizer)
+models/reranker-trained
+models/_train_ckpt
+
+# secrets + local noise (env comes from the Railway dashboard, not a file)
+.env
+.env.*
+*.log

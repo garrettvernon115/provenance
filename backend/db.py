@@ -32,6 +32,10 @@ def database_url(override: Optional[str] = None) -> str:
         return override
     if os.environ.get("PROVENANCE_DB_URL"):
         return os.environ["PROVENANCE_DB_URL"]
+    # Managed hosts (Railway, Neon, Render, Fly PG) expose a ready connection
+    # string as DATABASE_URL — accept it so no manual var mapping is needed.
+    if os.environ.get("DATABASE_URL"):
+        return os.environ["DATABASE_URL"]
     user = os.environ.get("POSTGRES_USER", "provenance")
     password = os.environ.get("POSTGRES_PASSWORD", "provenance")
     host = os.environ.get("POSTGRES_HOST", "localhost")

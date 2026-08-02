@@ -11,7 +11,7 @@ The project was built baseline-first. A hybrid retrieval layer established a mea
 ## Key Features
 
 - Natural-language Q&A over SEC EDGAR 10-K and Form 4 filings
-- Citations to the exact source passage, with a source viewer that highlights the cited span in the original document
+- Citations to the exact source passage, presented as an editorial "facing pages" spread — the grounded answer on one page, the live source with the cited span highlighted on the other; clicking a citation opens the full filing at that offset
 - Hybrid retrieval — pgvector semantic search + Postgres full-text (BM25-style), fused via Reciprocal Rank Fusion
 - An in-house fine-tuned cross-encoder re-ranker, exported to ONNX and served without PyTorch at request time
 - LLM-bootstrapped training data (LLM-generated questions + BM25 hard-negative mining) — no hand labeling
@@ -23,13 +23,15 @@ The project was built baseline-first. A hybrid retrieval layer established a mea
 
 ## Demo
 
-Live Demo: not yet deployed — deploy config and a step-by-step guide are included (`infra/DEPLOY.md`); the full stack runs locally via Docker at http://localhost:8000
+Live Demo: **https://provenance-app-production-8792.up.railway.app** — deployed on Railway (FastAPI app + a pgvector Postgres holding the ingested corpus). The full stack also runs locally via Docker at http://localhost:8000; deploy steps for Railway and Fly.io are in `infra/DEPLOY.md`.
+
+> The demo runs over a focused corpus of ~10 real 10-K filings (plus Form 4s), so questions about those companies' risk factors, debt, and competition work best. The first question after an idle period is slower while the embedding model warms up.
 
 Portfolio Case Study: GarrettV.com
 
 ## Project Status
 
-Build complete (ingestion through answer layer + UI), CI green, full stack runs in Docker. Ongoing/optional work: cloud deployment, scaling the training set to widen the re-ranker's margin, and slimming the serving image.
+Build complete (ingestion through answer layer + UI), CI green, and deployed live on Railway (FastAPI app + pgvector Postgres). Ongoing/optional work: scaling the training set to widen the re-ranker's margin, and slimming the serving image.
 
 ## Highlights
 
@@ -49,7 +51,7 @@ Provenance is a Python-first, service-oriented system whose layers all share one
 - Backend & API: a FastAPI service for hybrid retrieval, re-ranking (onnxruntime), and the answer layer
 - Frontend: a thin, server-served HTML/JS interface (query, cited answers, source viewer, eval dashboard)
 - LLM: Claude (Haiku) behind a swappable interface — used for data generation and the answer layer only
-- Deployment: Docker and docker-compose, GitHub Actions CI, Fly.io deploy config
+- Deployment: Docker and docker-compose, GitHub Actions CI, deployed on Railway (Fly.io config also included)
 
 ## Tech Stack
 
@@ -77,7 +79,7 @@ Provenance is a Python-first, service-oriented system whose layers all share one
 ### Cloud & Infrastructure
 - Docker and docker-compose
 - GitHub Actions (CI)
-- Fly.io (deploy config)
+- Railway (live deployment) · Fly.io (alternate deploy config)
 
 ### Integration
 - SEC EDGAR (data source)
